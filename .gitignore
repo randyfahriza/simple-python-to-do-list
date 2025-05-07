@@ -1,0 +1,5 @@
+__pycache__/
+.pytest_cache/
+venv/
+hubung_json.py
+py_to.json
