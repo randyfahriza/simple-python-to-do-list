@@ -172,7 +172,7 @@ class Halaman_home:
         def cek_file_json(): 
             try:
                 self.baca_json()
-            except FileNotFoundError as a:
+            except FileNotFoundError:
                 clear()
                 print(Fore.LIGHTRED_EX+"** Buat List Terlebih Dahulu **")
                 input("Masukkan apa saja untuk kembali ke menu")
@@ -200,10 +200,10 @@ class Halaman_home:
             argumen = bagian[1] if len(bagian) > 1 else ""
 
             if not argumen:
-                print(Fore.LIGHTRED_EX+"*** Masukkan nama list ***")
+                print(Fore.LIGHTRED_EX+"*** Masukkan perintah dengan benar ***")
                 return input_masuk_list()   
 
-            if perintah in ["!l", "!L"]:
+            if perintah.lower() == "!l":
                 if argumen in self.data_json and isinstance(self.data_json[argumen], dict):
                     halaman = Halaman_list(argumen)
                     halaman.input_perintah()
@@ -246,7 +246,7 @@ class Halaman_list(Halaman_home):
                 print(Fore.LIGHTRED_EX+"*** Masukkan perintah ***")
                 continue
 
-            if str(pilihan).lower() in "!k":
+            if str(pilihan).lower() == "!k":
                 self.menu_list()
                 return None
 
@@ -275,7 +275,7 @@ class Halaman_list(Halaman_home):
                 return False
 
     def kembali(self, input_perintah):
-        if str(input_perintah).lower() in "!k":
+        if str(input_perintah).lower() == "!k":
             self.input_perintah()
             return False
         else:
@@ -294,7 +294,6 @@ class Halaman_list(Halaman_home):
             self.baca_json()
 
             for todo in self.data_json[self.nama_list]:
-                print(todo)
                 if kegiatan in todo:
                     print(Fore.LIGHTRED_EX+"** Nama Kegiatan Tidak Boleh Sama! **")
                     print(Fore.LIGHTRED_EX+f"** Nama Kegiatan Yang Sama : {Fore.LIGHTCYAN_EX+todo+Fore.LIGHTRED_EX} **")
