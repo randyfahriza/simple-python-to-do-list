@@ -246,7 +246,7 @@ class Halaman_list(Halaman_home):
                 print(Fore.LIGHTRED_EX+"*** Masukkan perintah ***")
                 continue
 
-            if str(pilihan).lower() == "!k":
+            if str(pilihan).lower() == "!l":
                 self.menu_list()
                 return None
 
