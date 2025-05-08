@@ -277,23 +277,47 @@ class Halaman_list(Halaman_home):
             return True
     
     def lihat_list(self):
+        self.baca_json()
         def daftar_kegiatan():
-            self.baca_json()
-            for nomer, key in enumerate(self.data_json[self.nama_list].keys(), start=1):
-                print(f"{nomer}. {key}")
+            nomer = 1
+            for key, value in self.data_json[self.nama_list].items():
+                checkbox = "[x]" if value["status"] else "[ ]"
+                print(f"{nomer}. {checkbox} {key}")
+                nomer += 1
 
-        print(Style.BRIGHT+Fore.LIGHTCYAN_EX+"=== List Kegiatan ===")
-        print(Style.DIM+Fore.LIGHTBLUE_EX+
-            "Ketik (!i) Untuk Melihat Informasi Kegiatan"
-            "\nKetik (!e) Untuk Mengedit Kegiatan"
-            "\nKetik (!k) Untuk Kembali")
-        print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Ketik Perintah Dengan Nomor Kegiatannya")
-        print("="*30)
+        def nomer_argumen():
+            for nomer, value in enumerate(self.data_json[self.nama_list].values()):
+        
+                pass
+            pass
+        def pemilah_perintah(input_perintah):
+            bagian = str(input_perintah).strip().split(maxsplit=1)
+            perintah = bagian[0]
+            self.argumen = bagian[1] if len(bagian) > 1 else ""
 
-        daftar_kegiatan()
-        perintah = str(input("Masukkan Perintah : "))
-        for nomer, _ in enumerate(self.data_json[self.nama_list], start=1):
-            print(f"kegiatan = {nomer}")
+            match perintah.lower():
+                case "!c":
+                    pass
+            pass
+
+        while True:
+            clear()
+            print(Style.BRIGHT+Fore.LIGHTCYAN_EX+"=== List Kegiatan ===")
+            print(Style.DIM+Fore.LIGHTBLUE_EX+
+                "Ketik (!i) Untuk Melihat Informasi Kegiatan"
+                "\nKetik (!e) Untuk Mengedit Kegiatan"
+                "\nKetik (!c) Untuk Mencheck List"
+                "\nKetik (!k) Untuk Kembali")
+            print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Ketik Perintah Dengan Nomor Kegiatannya")
+            print("="*30)
+
+            daftar_kegiatan()
+            perintah = str(input("Masukkan Perintah : "))
+            if not self.kembali(perintah):
+                break
+            
+            if pemilah_perintah(perintah):
+                break
 
     def buat_kegiatan(self):
 
@@ -313,6 +337,7 @@ class Halaman_list(Halaman_home):
 
                 self.data_json[self.nama_list][kegiatan] = {"catatan" : catatan, "status" : False, "tanggal dibuat" : "05-2025"}
                 # urutan pada list = [cttn tmbhan, status:bool, tgl dibuat]
+
                 with open("todo.json", "w") as i:
                     json.dump(self.data_json,i,indent=4)
 
