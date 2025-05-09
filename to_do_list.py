@@ -50,7 +50,7 @@ class Halaman_home:
             self.data_json = json.load(i)
 
     def kembali_ke_menu(self, input_masuk):
-        if str(input_masuk).lower() == "!m":
+        if str(input_masuk).lower().strip() == "!m":
             print(Fore.LIGHTWHITE_EX+"** Kembali Ke Halaman Utama **")
             return Halaman_home()
 
@@ -243,7 +243,7 @@ class Halaman_list(Halaman_home):
                 print(Fore.LIGHTRED_EX+"*** Masukkan perintah ***")
                 continue
 
-            if str(pilihan).lower() == "!k":
+            if str(pilihan).lower().strip() == "!k":
                 self.menu_list()
                 return None
 
@@ -270,7 +270,7 @@ class Halaman_list(Halaman_home):
                 return False
 
     def kembali(self, input_perintah):
-        if str(input_perintah).lower() == "!k":
+        if str(input_perintah).lower().strip() == "!k":
             self.input_perintah()
             return False
         else:
@@ -279,40 +279,155 @@ class Halaman_list(Halaman_home):
     def lihat_list(self):
         self.baca_json()
         def daftar_kegiatan():
-            nomer = 1
-            for key, value in self.data_json[self.nama_list].items():
+            for nomer, (key, value) in enumerate(self.data_json[self.nama_list].items(), start=1):
                 checkbox = "[x]" if value["status"] else "[ ]"
                 print(f"{nomer}. {checkbox} {key}")
-                nomer += 1
-
-        def nomer_argumen():
-            for nomer, value in enumerate(self.data_json[self.nama_list].values()):
         
-                pass
-            pass
+        def edit_kegiatan():
+            def konfirmasi():
+                yakin = str(input("Anda Yakin? (Y/n):"))
+                if yakin.lower() in ["y", "iya", "ya"]:
+                    print(Fore.LIGHTGREEN_EX+"** Berhasil Mengedit **")
+                    return True
+                else:
+                    print(Fore.LIGHTRED_EX+"*** Gagal Mengedit ***")
+                    return False
+                
+            if self.argumen > len(self.data_json[self.nama_list]):
+                print(Fore.LIGHTRED_EX+"*** Nomor Tidak Ada ***")
+                return False
+            clear()
+            for nomer, (key, value) in enumerate(self.data_json[self.nama_list].items(), start=1):
+                if self.argumen == nomer:
+                    status = Fore.LIGHTGREEN_EX+"Selesai" if value["status"] else Fore.LIGHTRED_EX+"Belum Selesai"
+                    print(Fore.LIGHTBLUE_EX + "="*40)
+                    print(Fore.LIGHTYELLOW_EX+f"Nama Kegiatan : {key}")
+                    print(Fore.LIGHTCYAN_EX+f"Catatan : {value["catatan"]}")
+                    print(f"Status : {status}")
+                    print(Fore.LIGHTMAGENTA_EX+f"Tanggal Dibuat : {value["tanggal dibuat"]}")
+
+                    while True:
+                        edit = input(Style.DIM+Fore.WHITE+"Bagian Mana yang Ingin Diedit : ")
+                        match edit.strip().lower():
+                            case "nama kegiatan":
+                                edit_nama = str(input("Masukkan Nama Baru : ")).strip()
+                                if not edit_nama:
+                                    print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
+                                    continue
+                                if konfirmasi():
+                                    self.data_json[self.nama_list][edit_nama] = self.data_json[self.nama_list].pop(key)
+                                    return True
+                                else:
+                                    continue
+                            case "catatan":
+                                edit_catatan = str(input("Masukkan Catatan Baru : ")).strip()
+                                if not edit_catatan:
+                                    print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
+                                    continue
+
+                                if konfirmasi():
+                                    self.data_json[self.nama_list][key]["catatan"] = edit_catatan
+                                    return True
+                                else:
+                                    continue
+                            case "status":
+                                edit_status = str(input("Masukkan Status Baru : ")).strip().lower()
+                                if not edit_status:
+                                    print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
+                                    continue
+
+                                if edit_status in ["true", "selesai", "sudah"]:
+                                    self.data_json[self.nama_list][key]["status"] = True
+                                elif edit_status in ["false", "belum selesai", "belum"]:
+                                    self.data_json[self.nama_list][key]["status"] = False
+                                else:
+                                    print(Fore.LIGHTRED_EX+"*** Masukkan Status Dengan Benar! ***")
+                                    continue
+                                if konfirmasi():
+                                    return True
+                                else:
+                                    continue
+
+        def informasi_kegiatan():
+            if self.argumen > len(self.data_json[self.nama_list]):
+                print(Fore.LIGHTRED_EX+"*** Nomor Tidak Ada ***")
+                return False
+            clear()
+            for nomer, (key, value) in enumerate(self.data_json[self.nama_list].items(), start=1):
+                if self.argumen == nomer:
+                    status = Fore.LIGHTGREEN_EX+"Selesai" if value["status"] else Fore.LIGHTRED_EX+"Belum Selesai"
+                    print(Fore.LIGHTBLUE_EX + "="*40)
+                    print(Fore.LIGHTYELLOW_EX+f"Nama Kegiatan : {key}")
+                    print(Fore.LIGHTCYAN_EX+f"Catatan : {value["catatan"]}")
+                    print(f"Status : {status}")
+                    print(Fore.LIGHTMAGENTA_EX+f"Tanggal Dibuat : {value["tanggal dibuat"]}")
+                    input(Style.DIM+Fore.WHITE+"Enter Untuk Kembali : ")
+                    self.lihat_list()
+                    return True
+
+        def check_list():
+            if self.argumen > len(self.data_json[self.nama_list]):
+                print(Fore.LIGHTRED_EX+"*** Nomor Tidak Ada ***")
+                return False
+            for nomer, key in enumerate(self.data_json[self.nama_list].keys(), start=1):
+                if int(self.argumen) == nomer:
+                    status = True if not self.data_json[self.nama_list][key]["status"] else False
+                    self.data_json[self.nama_list][key]["status"] = status
+                    with open("todo.json", "w") as i:
+                        json.dump(self.data_json,i,indent=4)
+                    self.lihat_list()
+                    return True
+
         def pemilah_perintah(input_perintah):
             bagian = str(input_perintah).strip().split(maxsplit=1)
             perintah = bagian[0]
-            self.argumen = bagian[1] if len(bagian) > 1 else ""
+            argumen= bagian[1] if len(bagian) > 1 else ""
+            try:
+                self.argumen = int(argumen)
+            except ValueError:
+                print(Fore.LIGHTRED_EX+"*** Masukkan Angka Saja! ***")
+                return False
 
             match perintah.lower():
                 case "!c":
-                    pass
-            pass
+                    if check_list():
+                        return True
+                    else:
+                        return False
+                case "!i":
+                    if informasi_kegiatan():
+                        return True
+                    else:
+                        return False
+                case "!e":
+                    if edit_kegiatan():
+                        with open("todo.json", "w") as i:
+                            json.dump(self.data_json,i,indent=4)
+                        self.lihat_list()
+                        return True
+                    else:
+                        return False
+                case _:
+                    print(Fore.LIGHTRED_EX+"*** Perintah Tidak Ada! ***")
+                    return False
+
+        print(Style.BRIGHT+Fore.LIGHTCYAN_EX+"=== List Kegiatan ===")
+        print(Style.DIM+Fore.LIGHTBLUE_EX+
+            "Ketik (!i) Untuk Melihat Informasi Kegiatan"
+            "\nKetik (!c) Untuk Centang / Menghapus Centang"
+            "\nKetik (!e) Untuk Mengedit Kegiatan (Coming Soon)"
+            "\nKetik (!k) Untuk Kembali")
+        print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Ketik Perintah Dengan Nomor Kegiatannya")
+        print("="*30)
+
+        daftar_kegiatan()
 
         while True:
-            clear()
-            print(Style.BRIGHT+Fore.LIGHTCYAN_EX+"=== List Kegiatan ===")
-            print(Style.DIM+Fore.LIGHTBLUE_EX+
-                "Ketik (!i) Untuk Melihat Informasi Kegiatan"
-                "\nKetik (!e) Untuk Mengedit Kegiatan"
-                "\nKetik (!c) Untuk Mencheck List"
-                "\nKetik (!k) Untuk Kembali")
-            print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Ketik Perintah Dengan Nomor Kegiatannya")
-            print("="*30)
-
-            daftar_kegiatan()
             perintah = str(input("Masukkan Perintah : "))
+            if not perintah.strip():
+                print(Fore.LIGHTRED_EX+"*** Masukkan Perintah! ***")
+                continue
+
             if not self.kembali(perintah):
                 break
             
