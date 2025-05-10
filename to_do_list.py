@@ -1,11 +1,14 @@
 import os
 from colorama import init, Fore,Style
 import json
+import datetime
 
 init(True)
  
 clear = lambda:os.system("cls")
 clear()
+tanggal = datetime.datetime.now()
+tanggal = tanggal.strftime("%Y-%m-%d")
 
 class Halaman_home:
     def __init__(self):
@@ -278,12 +281,36 @@ class Halaman_list(Halaman_home):
     
     def lihat_list(self):
         self.baca_json()
+        
+            
         def daftar_kegiatan():
             for nomer, (key, value) in enumerate(self.data_json[self.nama_list].items(), start=1):
                 checkbox = "[x]" if value["status"] else "[ ]"
                 print(f"{nomer}. {checkbox} {key}")
         
         def edit_kegiatan():
+            def clear_cache():
+                clear()
+                isi_kegiatan()
+
+            def kembali_ke_sebelum(input_perintah, nomer_kembali):
+                if nomer_kembali == 1:
+                    if str(input_perintah).lower().strip() == "!k":
+                        self.lihat_list()
+                        return True
+                    else:
+                        return False
+                if nomer_kembali == 2:
+                    if str(input_perintah).lower().strip() == "!k":
+                        clear()
+                        isi_kegiatan()
+                        print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Masukkan Bagian Mana Yang Ingin Diedit"
+                        "\nContoh : \"edit bagian : nama kegiatan\""
+                        "\nKetik (!k) Untuk Kembali")
+                        return True
+                    else:
+                        return False
+                
             def konfirmasi():
                 yakin = str(input("Anda Yakin? (Y/n):"))
                 if yakin.lower() in ["y", "iya", "ya"]:
@@ -292,6 +319,14 @@ class Halaman_list(Halaman_home):
                 else:
                     print(Fore.LIGHTRED_EX+"*** Gagal Mengedit ***")
                     return False
+            def isi_kegiatan():
+                status = Fore.LIGHTGREEN_EX+"Selesai" if value["status"] else Fore.LIGHTRED_EX+"Belum Selesai"
+                print(Fore.LIGHTBLUE_EX + "="*40)
+                print(Fore.LIGHTYELLOW_EX+f"Nama Kegiatan : {key}")
+                print(Fore.LIGHTCYAN_EX+f"Catatan : {value["catatan"]}")
+                print(f"Status : {status}")
+                print(Fore.LIGHTMAGENTA_EX+f"Tanggal Dibuat : {value["tanggal dibuat"]}")
+                print(Fore.LIGHTBLUE_EX + "="*40)
                 
             if self.argumen > len(self.data_json[self.nama_list]):
                 print(Fore.LIGHTRED_EX+"*** Nomor Tidak Ada ***")
@@ -299,18 +334,25 @@ class Halaman_list(Halaman_home):
             clear()
             for nomer, (key, value) in enumerate(self.data_json[self.nama_list].items(), start=1):
                 if self.argumen == nomer:
-                    status = Fore.LIGHTGREEN_EX+"Selesai" if value["status"] else Fore.LIGHTRED_EX+"Belum Selesai"
-                    print(Fore.LIGHTBLUE_EX + "="*40)
-                    print(Fore.LIGHTYELLOW_EX+f"Nama Kegiatan : {key}")
-                    print(Fore.LIGHTCYAN_EX+f"Catatan : {value["catatan"]}")
-                    print(f"Status : {status}")
-                    print(Fore.LIGHTMAGENTA_EX+f"Tanggal Dibuat : {value["tanggal dibuat"]}")
+                    isi_kegiatan()
+                    print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Masukkan Bagian Mana Yang Ingin Diedit"
+                    "\nContoh : \"edit bagian : nama kegiatan\""
+                    "\nKetik (!k) Untuk Kembali")
 
                     while True:
-                        edit = input(Style.DIM+Fore.WHITE+"Bagian Mana yang Ingin Diedit : ")
+                        edit = input(Style.DIM+Fore.WHITE+"Edit Bagian : ")
+                        if kembali_ke_sebelum(edit, 1):
+                            break
+
+                        header_edit = lambda edit_bagian = str:print(Fore.LIGHTBLUE_EX+"="*10+f" Edit {edit_bagian.capitalize()} "+"="*10)
                         match edit.strip().lower():
                             case "nama kegiatan":
+                                clear_cache()
+                                header_edit("nama kegiatan")
+                                print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Masukkan Nama Kegiatan Yang Ingin Diganti")
                                 edit_nama = str(input("Masukkan Nama Baru : ")).strip()
+                                if kembali_ke_sebelum(edit_nama, 2):
+                                    continue
                                 if not edit_nama:
                                     print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
                                     continue
@@ -320,7 +362,12 @@ class Halaman_list(Halaman_home):
                                 else:
                                     continue
                             case "catatan":
+                                clear_cache()
+                                header_edit("catatan")
+                                print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Masukkan Nama Catatan Yang Ingin Diganti")
                                 edit_catatan = str(input("Masukkan Catatan Baru : ")).strip()
+                                if kembali_ke_sebelum(edit_catatan, 2):
+                                    continue
                                 if not edit_catatan:
                                     print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
                                     continue
@@ -331,7 +378,13 @@ class Halaman_list(Halaman_home):
                                 else:
                                     continue
                             case "status":
+                                clear_cache()
+                                header_edit("status")
+                                print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Masukkan Status Yang Ingin Diganti" \
+                                "\nPetunjuk : Hanya Menerima [true / selesai dan false / belum selesai]")
                                 edit_status = str(input("Masukkan Status Baru : ")).strip().lower()
+                                if kembali_ke_sebelum(edit_status, 2):
+                                    continue
                                 if not edit_status:
                                     print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
                                     continue
@@ -347,6 +400,23 @@ class Halaman_list(Halaman_home):
                                     return True
                                 else:
                                     continue
+                            case "tanggal dibuat":
+                                clear_cache()
+                                header_edit("tanggal dibuat")
+                                print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Masukkan Tanggal Dibuat Baru (YYYY-MM-DD)")
+                                print(Style.DIM+Fore.LIGHTYELLOW_EX+"Peringatan : Mengubah Tanggal Dibuat Akan Mempengaruhi Histori.")
+                                edit_tanggal = str(input("Masukkan Status Baru : ")).strip().lower()
+
+                                if kembali_ke_sebelum(edit_tanggal, 2):
+                                    continue
+                                if not edit_tanggal:
+                                    print(Fore.LIGHTRED_EX+"*** Masukkan Input ***")
+                                    continue
+                                    
+                                edit_tanggal = edit_tanggal.split("-", maxsplit=3)
+                                print(edit_tanggal)
+                                print(len(edit_tanggal))
+                                break
 
         def informasi_kegiatan():
             if self.argumen > len(self.data_json[self.nama_list]):
@@ -361,6 +431,7 @@ class Halaman_list(Halaman_home):
                     print(Fore.LIGHTCYAN_EX+f"Catatan : {value["catatan"]}")
                     print(f"Status : {status}")
                     print(Fore.LIGHTMAGENTA_EX+f"Tanggal Dibuat : {value["tanggal dibuat"]}")
+                    print(Fore.LIGHTBLUE_EX + "="*40)
                     input(Style.DIM+Fore.WHITE+"Enter Untuk Kembali : ")
                     self.lihat_list()
                     return True
@@ -449,8 +520,7 @@ class Halaman_list(Halaman_home):
 
             yakin = str(input("Anda Yakin? (Y/n):"))
             if yakin.lower() in ["y", "iya", "ya"]:
-
-                self.data_json[self.nama_list][kegiatan] = {"catatan" : catatan, "status" : False, "tanggal dibuat" : "05-2025"}
+                self.data_json[self.nama_list][kegiatan] = {"catatan" : catatan, "status" : False, "tanggal dibuat" : tanggal}
                 # urutan pada list = [cttn tmbhan, status:bool, tgl dibuat]
 
                 with open("todo.json", "w") as i:
