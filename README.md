@@ -10,9 +10,15 @@ This is a simple command-line To-Do List application written in Python. It allow
 
 ## Supported Languages
 
-- Indonesia (IDN)
+- Indonesia (ID)
+- English (EN)
 
 ## Requirements
 
 - Python 3.10 or higher
 - More details at requirement.txt
+
+## Supported Operating System
+
+- Windows
+- if you use another OS it may not work

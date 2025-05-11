@@ -46,7 +46,7 @@ class Halaman_home:
                 return False
 
     def baca_json(self):
-        with open("todo.json", "r") as i:
+        with open("todo_id.json", "r") as i:
             self.data_json = json.load(i)
 
     def kembali_ke_menu(self, input_masuk):
@@ -83,12 +83,12 @@ class Halaman_home:
                 try:
                     self.baca_json()
                     self.data_json[nama_list] = {}
-                    with open("todo.json", "w") as i:
+                    with open("todo_id.json", "w") as i:
                         json.dump(self.data_json,i,indent=4)
                         break
 
                 except FileNotFoundError:
-                    with open("todo.json", "w") as i:
+                    with open("todo_id.json", "w") as i:
                         json.dump({},i,indent=4)
                         continue
 
@@ -156,7 +156,7 @@ class Halaman_home:
                             clear()
                             self.data_json.pop(input_list, None)
 
-                            with open("todo.json", "w") as i:
+                            with open("todo_id.json", "w") as i:
                                 json.dump(self.data_json,i,indent=4)
                             print(Fore.LIGHTGREEN_EX+"** List Berasil Di Hapus! **")
                             return self.hapus_list()
@@ -273,9 +273,6 @@ class Halaman_list(Halaman_home):
                 self.buat_kegiatan()
                 return True
 
-            case "!h":
-                print("cihuy")
-
             case "!l":
                 self.lihat_list()
                 return True
@@ -295,6 +292,9 @@ class Halaman_list(Halaman_home):
         self.baca_json()
         clear()    
         def daftar_kegiatan():
+            if not self.data_json[self.nama_list]:
+                print(Fore.LIGHTRED_EX+"** Tidak Ada Kegiatan **")
+                return False
             for nomer, (key, value) in enumerate(self.data_json[self.nama_list].items(), start=1):
                 checkbox = "[x]" if value["status"] else "[ ]"
                 print(f"{nomer}. {checkbox} {key}")
@@ -352,7 +352,7 @@ class Halaman_list(Halaman_home):
                     if kembali_ke_sebelum(edit, 1):
                         return True
                     if masuk_edit_bagian(edit):
-                        with open("todo.json", "w") as i:
+                        with open("todo_id.json", "w") as i:
                             json.dump(self.data_json, i, indent=4)
                         return True
 
@@ -517,7 +517,7 @@ class Halaman_list(Halaman_home):
                 if int(self.argumen) == nomer:
                     status = True if not self.data_json[self.nama_list][key]["status"] else False
                     self.data_json[self.nama_list][key]["status"] = status
-                    with open("todo.json", "w") as i:
+                    with open("todo_id.json", "w") as i:
                         json.dump(self.data_json,i,indent=4)
                     self.lihat_list()
                     return True
@@ -531,7 +531,7 @@ class Halaman_list(Halaman_home):
                     yakin = str(input("Anda Yakin? (Y/n):"))
                     if yakin.lower() in ["y", "iya", "ya"]:
                         self.data_json[self.nama_list].pop(key, None)
-                        with open("todo.json", "w") as i:
+                        with open("todo_id.json", "w") as i:
                             json.dump(self.data_json,i,indent=4)
                         print(Fore.LIGHTGREEN_EX+"** Berhasil Menghapus Kegiatan **")
                         self.lihat_list()
@@ -584,10 +584,11 @@ class Halaman_list(Halaman_home):
             "\nKetik (!h) Untuk Menghapus Kegiatan"
             "\nKetik (!k) Untuk Kembali")
         print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Ketik Perintah Dengan Nomor Kegiatannya")
-        print("="*30)
+        print("="*7+" Daftar Kegiatan "+"="*7)
 
         daftar_kegiatan()
 
+        print("="*31)
         while True:
             perintah = str(input("Masukkan Perintah : "))
             if not perintah.strip():
@@ -618,7 +619,7 @@ class Halaman_list(Halaman_home):
                 self.data_json[self.nama_list][kegiatan] = {"catatan" : catatan, "status" : False, "tanggal dibuat" : tanggal}
                 # urutan pada list = [cttn tmbhan, status:bool, tgl dibuat]
 
-                with open("todo.json", "w") as i:
+                with open("todo_id.json", "w") as i:
                     json.dump(self.data_json,i,indent=4)
 
                 print(Fore.LIGHTGREEN_EX+"** Berhasil Membuat Kegiatan **")
