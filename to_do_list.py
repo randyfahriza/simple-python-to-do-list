@@ -15,7 +15,7 @@ class Halaman_home:
         print(Style.BRIGHT+Fore.WHITE+"="*3+" Selamat Datang Di To-Do List "+"="*3)
         print(Style.BRIGHT+Fore.GREEN+"Daftar Menu : "
         "\n1. Membuat To-Do List Baru"
-        "\n2. Melihat To-Do List (Coming Soon)"
+        "\n2. Melihat To-Do List"
         "\n3. Menghapus To-Do List"
         "\n4. Keluar")
         return self.input_menu()
@@ -29,15 +29,12 @@ class Halaman_home:
     def masuk_menu(self, pilihan):
         match pilihan:
             case "1":
-                print("anda memmilih 1")
                 self.buat_list()
                 return True
             case "2":
-                print("anda memmilih 2")
                 self.menu_list()
                 return True
             case "3":
-                print("anda memmilih 3")
                 self.hapus_list()
                 return True
             case "4":
@@ -76,6 +73,7 @@ class Halaman_home:
     def buat_list(self):
         clear()
         self.daftar_list()
+        
         print(Style.BRIGHT+Fore.CYAN+"="*3+" Buat To-Do List "+"="*3)
         print(Style.DIM+Fore.LIGHTBLUE_EX+"Petunjuk : Masukkan Nama List Yang Ingin Di Buat")
         print(Style.DIM+Fore.LIGHTBLUE_EX+"Petunjuk : Ketik (!m) Untuk Kembali Ke Menu Utama")
@@ -111,6 +109,21 @@ class Halaman_home:
 
             if self.kembali_ke_menu(nama_list):
                 break
+            nama_sama = None
+            try:
+                self.baca_json()
+                for key in self.data_json.keys():
+                    if nama_list == key:
+                        print(Fore.LIGHTRED_EX+"** Nama Kegiatan Tidak Boleh Sama! **")
+                        print(Fore.LIGHTRED_EX+f"** Nama Kegiatan Yang Sama : {Fore.LIGHTCYAN_EX+key+Fore.LIGHTRED_EX} **")
+                        nama_sama = True
+                        break
+                if nama_sama:
+                    nama_sama = False
+                    continue
+                    
+            except FileNotFoundError:
+                pass
             
             yakin = str(input("Anda Yakin? (Y/n):"))
             if yakin.lower() in ["y", "iya", "ya"]:  
@@ -234,7 +247,6 @@ class Halaman_list(Halaman_home):
         print(Style.BRIGHT+Fore.WHITE+"="*3+f" Selamat Datang Di {Fore.LIGHTCYAN_EX+self.nama_list+Fore.WHITE} "+"="*3)
         print(Style.BRIGHT+Fore.GREEN+"Daftar Perintah : "
         "\nKetik (!b) Untuk Membuat Kegiatan Baru"
-        "\nKetik (!h) Untuk Menghapus Kegiatan"
         "\nKetik (!l) Untuk Melihat Kegiatan"
         "\nKetik (!k) Untuk Kembali")
         print(Style.DIM+Fore.LIGHTBLUE_EX+"Petunjuk : Masukkan Perintah Yang Ada Di Atas")
@@ -509,6 +521,24 @@ class Halaman_list(Halaman_home):
                         json.dump(self.data_json,i,indent=4)
                     self.lihat_list()
                     return True
+                
+        def hapus_kegiatan():
+            if self.argumen > len(self.data_json[self.nama_list]):
+                print(Fore.LIGHTRED_EX+"*** Nomor Tidak Ada ***")
+                return False
+            for nomer, key in enumerate(self.data_json[self.nama_list].keys(), start=1):
+                if self.argumen == nomer:
+                    yakin = str(input("Anda Yakin? (Y/n):"))
+                    if yakin.lower() in ["y", "iya", "ya"]:
+                        self.data_json[self.nama_list].pop(key, None)
+                        with open("todo.json", "w") as i:
+                            json.dump(self.data_json,i,indent=4)
+                        print(Fore.LIGHTGREEN_EX+"** Berhasil Menghapus Kegiatan **")
+                        self.lihat_list()
+                        return True
+                    else:
+                        print(Fore.LIGHTRED_EX+"** Gagal Menghapus Kegiatan **")
+                        return False
 
         def pemilah_perintah(input_perintah):
             bagian = str(input_perintah).strip().split(maxsplit=1)
@@ -537,6 +567,11 @@ class Halaman_list(Halaman_home):
                         return True
                     else:
                         return False
+                case "!h":
+                    if hapus_kegiatan():
+                        return True
+                    else:
+                        return False
                 case _:
                     print(Fore.LIGHTRED_EX+"*** Perintah Tidak Ada! ***")
                     return False
@@ -546,6 +581,7 @@ class Halaman_list(Halaman_home):
             "Ketik (!i) Untuk Melihat Informasi Kegiatan"
             "\nKetik (!c) Untuk Centang / Menghapus Centang"
             "\nKetik (!e) Untuk Mengedit Kegiatan"
+            "\nKetik (!h) Untuk Menghapus Kegiatan"
             "\nKetik (!k) Untuk Kembali")
         print(Style.NORMAL+Fore.LIGHTGREEN_EX+"Petunjuk : Ketik Perintah Dengan Nomor Kegiatannya")
         print("="*30)
@@ -570,7 +606,7 @@ class Halaman_list(Halaman_home):
             self.baca_json()
 
             for todo in self.data_json[self.nama_list]:
-                if kegiatan in todo:
+                if kegiatan == todo:
                     print(Fore.LIGHTRED_EX+"** Nama Kegiatan Tidak Boleh Sama! **")
                     print(Fore.LIGHTRED_EX+f"** Nama Kegiatan Yang Sama : {Fore.LIGHTCYAN_EX+todo+Fore.LIGHTRED_EX} **")
                     return False
