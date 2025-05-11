@@ -8,6 +8,10 @@ This is a simple command-line To-Do List application written in Python. It allow
 - View all tasks
 - Remove completed tasks
 
+## Supported Languages
+
+- Indonesia (IDN)
+
 ## Requirements
 
 - Python 3.10 or higher
